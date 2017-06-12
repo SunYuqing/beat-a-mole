@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Whack A Mole!</title>
+    <link href='https://fonts.googleapis.com/css?family=Amatic+SC:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<h1>快来打鼹鼠！-- <span class="score">0</span>分</h1>
+<!--<h2 style="text-align: center;font-size: 20px">我的最好成绩：</h2>-->
+<div class="btn">
+    <button onClick="startGame()" class="start-btn">开始</button>
+    <button onClick="stopGame()">结束</button>
+    <h2 style="font-weight: 900;font-size: 20px;color:  #2A2B5F">计时: <span class="time" style="background:rgba(255,255,255,0.3);display: inline-block;width:14px;border-radius: 2px">0</span> s</h2>
+</div>
+
+
+<div class="game">
+    <div class="hole hole1">
+        <div class="mole"></div>
+    </div>
+    <div class="hole hole2">
+        <div class="mole"></div>
+    </div>
+    <div class="hole hole3">
+        <div class="mole"></div>
+    </div>
+    <div class="hole hole4">
+        <div class="mole"></div>
+    </div>
+    <div class="hole hole5">
+        <div class="mole"></div>
+    </div>
+    <div class="hole hole6">
+        <div class="mole"></div>
+    </div>
+</div>
+<audio class="hit-audio" src="sound/clap.wav"></audio>
+<audio class="start-audio" src="sound/hihat.wav"></audio>
+<audio class="stop-audio" src="sound/openhat.wav"></audio>
+<!--<script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>-->
+<script>
+
+    const holes = document.querySelectorAll('.hole');
+    const scoreBoard = document.querySelector('.score');
+    const moles = document.querySelectorAll('.mole');
+    const timeBoard = document.querySelector('.time');
+    const startBtn = document.querySelector('.start-btn');
+    const hitAudio = document.querySelector('.hit-audio');
+    const startAudio = document.querySelector('.start-audio');
+    const stopAudio = document.querySelector('.stop-audio');
+    let lastHole;
+    let timeUp = false;
+    let score = 0;
+    let time = 0;
+    var timer = null;
+
+    function randomTime(min, max) {
+        return Math.round(Math.random() * (max - min) + min);
+    }
+
+    function randomHole(holes) {
+        const idx = Math.floor(Math.random() * holes.length);
+        const hole = holes[idx];
+        if (hole === lastHole) {
+            console.log('同一只鼹鼠');
+            return randomHole(holes);
+        }
+        lastHole = hole;
+        return hole;
+    }
+
+    function peep() {
+        const time = randomTime(200, 1000);
+        const hole = randomHole(holes);
+        hole.classList.add('up');
+        setTimeout(() => {
+            hole.classList.remove('up');
+        if (!timeUp) peep();
+    }, time);
+    }
+
+    function startGame() {
+        scoreBoard.textContent = 0;
+        startAudio.play();
+        timeUp = false;
+        score = 0;
+        peep();
+        countTime();
+        startBtn.disabled = true;
+    }
+    function countTime() {
+//        time++;
+        timer = setTimeout('countTime()', 1000);
+        time++;
+        timeBoard.textContent= time;
+    }
+    function stopGame() {
+        timeUp = true;
+        stopAudio.play();
+        clearTimeout(timer);
+        time=0;
+        startBtn.disabled = false;
+//        timeBoard.textContent = 0;
+    }
+
+    function bonk(e) {
+        if(!e.isTrusted) return; //判断是否由用户鼠标点击触发事件
+        score++;
+        hitAudio.play();
+        this.classList.remove('up');
+        scoreBoard.textContent = score;
+    }
+
+    moles.forEach(mole => mole.addEventListener('click', bonk));
+
+</script>
+</body>
+</html>
